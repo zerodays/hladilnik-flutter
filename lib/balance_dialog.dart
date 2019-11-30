@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hladilnik/api.dart';
+import 'package:hladilnik/constants.dart';
 
 class BalanceDialog extends StatefulWidget {
   @override
@@ -79,41 +80,44 @@ class _BalanceDialogState extends State<BalanceDialog> {
     }
 
     return Dialog(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 16.0),
-            child: Text(
-              'Add Balance',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 32.0,
+      child: Container(
+        constraints: BoxConstraints(maxWidth: SMALL_WIDTH),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 16.0),
+              child: Text(
+                'Add Balance',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 32.0,
+                ),
               ),
             ),
-          ),
-          ...elements,
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                FlatButton(
-                  child: Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop([false, false]),
-                  textColor: Colors.red,
-                ),
-                FlatButton(
-                  child: Text('Save'),
-                  textColor: Theme.of(context).colorScheme.secondary,
-                  onPressed:
-                      (_selectedUserID < 0 || _amount <= 0.0) ? null : _save,
-                ),
-              ],
+            ...elements,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () => Navigator.of(context).pop([false, false]),
+                    textColor: Colors.red,
+                  ),
+                  FlatButton(
+                    child: Text('Save'),
+                    textColor: Theme.of(context).colorScheme.secondary,
+                    onPressed:
+                        (_selectedUserID < 0 || _amount <= 0.0) ? null : _save,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

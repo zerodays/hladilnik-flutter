@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hladilnik/api.dart';
 import 'package:hladilnik/balance_dialog.dart';
 import 'package:hladilnik/error.dart';
+import 'package:hladilnik/users_list.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Hladilnik',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -42,7 +43,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _showAddBalanceDialog(BuildContext context) async {
-    List<bool> success = await showDialog(
+    List<bool> status = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -50,11 +51,27 @@ class _MainPageState extends State<MainPage> {
       },
     );
 
-    if (success[0]) {
+    if (!status[0]) return;
+    bool success = status[1];
+
+    if (success) {
       setState(() {
-        _displayError = !success[1];
+        _displayError = false;
       });
     }
+
+    String message;
+    if (success) {
+      message = 'Balance updated!';
+    } else {
+      message = 'Could not update balance...';
+    }
+
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 
   void _retryDataFetch() async {
@@ -76,58 +93,27 @@ class _MainPageState extends State<MainPage> {
     if (_displayError) {
       body = Error('Could not fetch data', _retryDataFetch);
     } else if (Api().loading) {
-      body = _CenterLoading();
+      body = Center(
+        child: CircularProgressIndicator(),
+      );
     } else if (!Api().hasData) {
       body = Error('Data not yet been fetched', _retryDataFetch);
     } else if (Api().users.length == 0) {
       body = Error('No users on server', _retryDataFetch);
     } else {
-      body = _UsersList(Api().users, _fetchData);
+      body = UsersList(Api().users, _fetchData);
     }
 
     return Scaffold(
       appBar: AppBar(title: Text('Hladilnik')),
       body: body,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddBalanceDialog(context),
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class _CenterLoading extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-}
-
-class _UsersList extends StatelessWidget {
-  final List<User> _users;
-  final Function _onRefresh;
-
-  _UsersList(this._users, this._onRefresh);
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await _onRefresh();
-      },
-      child: ListView.separated(
-        padding: const EdgeInsets.only(top: 8.0),
-        itemCount: _users.length,
-        itemBuilder: (BuildContext context, int index) {
-          User user = _users[index];
-          return ListTile(
-            title: Text(user.name),
-            trailing: Text('${user.balance} €'),
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            onPressed: () => _showAddBalanceDialog(context),
+            child: Icon(Icons.add),
           );
         },
-        separatorBuilder: (_, __) => Divider(),
       ),
     );
   }
